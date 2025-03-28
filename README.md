@@ -1,93 +1,102 @@
-# 🏆 LỘ TRÌNH 10 NGÀY HỌc GOLANG & GIN - XÂY DỰNG API MONOLITHIC
+# 🚀 Lộ Trình Học Golang và Gin: Từ Cơ Bản Đến API Monolithic 🖥️
 
-## 🚀 Giới thiệu
+## 🎯 Mục Tiêu Học Tập
+Khóa học 10 ngày này sẽ giúp bạn từ một người mới bắt đầu trở thành một lập trình viên Golang có thể xây dựng API Monolithic chuyên nghiệp.
 
-Chào mừng bạn đến với **lộ trình 10 ngày** học **Golang** & **Gin**! Trong khoảng thời gian này, bạn sẽ:
+## 📅 Lộ Trình Chi Tiết
 
-- 💡 Hiểu rõ về ngôn ngữ Golang
-- ⚡ Làm quen với framework Gin để viết API
-- 🏗 Áp dụng kiến trúc Monolithic
-- 🔥 Xây dựng và deploy API hoàn chỉnh
+### 🌱 Ngày 1: Nền Tảng Golang
+- 📘 Cài đặt Go và môi trường phát triển
+- 🔤 Cú pháp cơ bản
+- 🧩 Các kiểu dữ liệu và biến
+- 💡 Cấu trúc điều khiển (if, else, switch)
+- 📝 Bài tập: Viết chương trình console đầu tiên
 
----
+### 🌿 Ngày 2: Hàm và Cấu Trúc
+- 🔍 Khai báo và sử dụng hàm
+- 🏗️ Structs và methods
+- 🔄 Interfaces
+- 📦 Packages và module
+- 💻 Bài tập: Tạo một hệ thống quản lý đối tượng đơn giản
 
-## 📅 Lộ trình 10 ngày
+### 🍃 Ngày 3: Xử Lý Lỗi và Goroutines
+- ❗ Xử lý lỗi (error handling)
+- 🚦 Goroutines và concurrency
+- 📡 Channels
+- 🔒 Synchronization
+- 🧵 Bài tập: Viết chương trình đa luồng đơn giản
 
-### 🟢 Ngày 1: Làm quen với Golang 🦫
+### 🌳 Ngày 4: Làm Quen Với Gin Framework
+- 🌐 Giới thiệu Gin
+- 🔧 Cài đặt và cấu hình
+- 🛣️ Routing cơ bản
+- 📥 Xử lý request
+- 📤 Xử lý response
+- 🌟 Bài tập: Tạo API endpoint đầu tiên
 
-- Cài đặt Golang
-- Hiểu về syntax cơ bản
-- Viết chương trình **Hello World**
+### 🍂 Ngày 5: Middleware và Validation
+- 🛡️ Middleware trong Gin
+- ✅ Validation dữ liệu
+- 🔐 Xác thực cơ bản
+- 📋 Xử lý form và JSON
+- 🔍 Bài tập: Viết middleware kiểm tra quyền truy cập
 
-### 🟢 Ngày 2: Biến, hàm và package 📦
+### 🌲 Ngày 6: Kết Nối Cơ Sở Dữ Liệu
+- 💾 Giới thiệu GORM
+- 🔗 Kết nối database
+- 📊 ORM cơ bản
+- 🗃️ CRUD operations
+- 🚀 Bài tập: Xây dựng repository pattern
 
-- Khai báo biến, kiểu dữ liệu
-- Hiểu về function, method
-- Tổ chức code bằng package
+### 🌴 Ngày 7: Kiến Trúc Monolithic
+- 🏗️ Giới thiệu kiến trúc Monolithic
+- 📂 Cấu trúc thư mục dự án
+- 🔍 Service layer
+- 🔗 Dependency Injection
+- 💡 Bài tập: Thiết kế cấu trúc dự án
 
-### 🟢 Ngày 3: Concurrency trong Golang ⚙️
+### 🍁 Ngày 8: Xác Thực và Bảo Mật
+- 🔐 JWT Authentication
+- 🛡️ Bcrypt cho mật khẩu
+- 🔑 Quản lý phiên
+- 🚧 Bảo mật API
+- 🌟 Bài tập: Hệ thống đăng nhập
 
-- Goroutines & Channels
-- Các mô hình xử lý đồng thời
-- Thực hành bài toán goroutine
+### 🌵 Ngày 9: Testing và Logging
+- ✅ Unit testing
+- 🕵️ Integration testing
+- 📝 Logging với Gin
+- 🔬 Mockup dữ liệu
+- 🧪 Bài tập: Viết test cho các API
 
-### 🟢 Ngày 4: Giới thiệu framework Gin 🍸
+### 🍄 Ngày 10: Deploy và Tối Ưu
+- ☁️ Deployment options
+- 🐳 Docker hóa ứng dụng
+- 📈 Performance optimization
+- 🔧 Giải pháp caching
+- 🚀 Bài tập: Deploy ứng dụng
 
-- Cài đặt & cấu hình Gin
-- Tạo API **GET, POST**
-- Middleware trong Gin
+## 📚 Tài Nguyên Học Tập
+- 📖 Docs Golang: https://golang.org/doc/
+- 🌐 Gin Framework: https://gin-gonic.com/
+- 💡 GORM: https://gorm.io/
 
-### 🟢 Ngày 5: Xây dựng API CRUD 🛠
-
-- Kết nối với database PostgreSQL
-- Tạo API CRUD (Create, Read, Update, Delete)
-- Logging và Error Handling
-
-### 🟢 Ngày 6: Authentication & JWT 🔐
-
-- Xây dựng chức năng login/signup
-- Sinh token JWT, bảo vệ API
-- Middleware xác thực
-
-### 🟢 Ngày 7: Clean Code & Best Practices 🎯
-
-- Structuring project
-- Dependency Injection
-- Test API với Postman
-
-### 🟢 Ngày 8: Caching và Performance ⚡
-
-- Redis caching
-- Giảm tải cho database
-- Gzip compression
-
-### 🟢 Ngày 9: Triển khai API lên server 🚀
-
-- Docker hoá project
-- Deploy với DigitalOcean/AWS
-- Giới thiệu CI/CD
-
-### 🟢 Ngày 10: Hoàn thiện và đánh giá 📊
-
-- Refactor code
-- Kiểm thử API
-- Viết README & Document API
-
----
-
-## 🎯 Kết quả sau 10 ngày
-
+## 🏆 Mục Tiêu Cuối Khóa
 Sau 10 ngày, bạn sẽ có thể:
-✅ Viết API với Golang & Gin
-✅ Hiểu về JWT, Middleware, Database
-✅ Đóng gói API và deploy lên server
+- 💻 Lập trình Golang thành thạo
+- 🌐 Xây dựng API với Gin
+- 🗃️ Thiết kế hệ thống Monolithic
+- 🔐 Áp dụng best practices bảo mật
+
+## 🤝 Hỗ Trợ
+Nếu gặp khó khăn, đừng ngần ngại tham gia cộng đồng:
+- 💬 Diễn đàn Go: https://forum.golangbridge.org/
+- 🐦 Discord Golang
+- 📮 Email hỗ trợ: support@golang.study
+
+## 📝 Ghi Chú
+🚨 Lộ trình này là hướng dẫn, hãy điều chỉnh phù hợp với tốc độ học của bạn!
 
 ---
 
-## 📌 Tài nguyên học tập
-
-- [Golang Docs](https://golang.org/doc/)
-- [Gin Framework](https://gin-gonic.com/)
-- [PostgreSQL Docs](https://www.postgresql.org/docs/)
-
-🚀 **Bất đầu ngay hôm nay!**
+**Chúc bạn học tập vui vẻ và thành công! 🎉👩‍💻👨‍💻**
