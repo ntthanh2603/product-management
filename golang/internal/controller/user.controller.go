@@ -2,8 +2,8 @@ package controller
 
 import (
 	"github.com/gin-gonic/gin"
-	"github.com/ntthanh2603/go-ecommerce.git/internal/service"
-	"github.com/ntthanh2603/go-ecommerce.git/pkg/response"
+	"github.com/ntthanh2603/10day-golang.git/golang/internal/service"
+	"github.com/ntthanh2603/10day-golang.git/golang/pkg/response"
 )
 
 type UserController struct {
