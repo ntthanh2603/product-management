@@ -1,4 +1,4 @@
-module github.com/ntthanh2603/10day-golang.git/golang
+module github.com/ntthanh2603/golang.git/golang
 
 go 1.23.0
 
