@@ -1,0 +1,6 @@
+2025-03-29T16:46:44.555+0700	INFO	cli/main.log.go:38	Info Logs	{"Line": 1}
+2025-03-29T16:46:44.556+0700	ERROR	cli/main.log.go:39	Error Logs	{"Line": 2}
+2025-03-29T16:46:46.676+0700	INFO	cli/main.log.go:38	Info Logs	{"Line": 1}
+2025-03-29T16:46:46.676+0700	ERROR	cli/main.log.go:39	Error Logs	{"Line": 2}
+2025-03-29T16:46:48.426+0700	INFO	cli/main.log.go:38	Info Logs	{"Line": 1}
+2025-03-29T16:46:48.426+0700	ERROR	cli/main.log.go:39	Error Logs	{"Line": 2}
