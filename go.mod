@@ -1,4 +1,4 @@
-module github.com/ntthanh2603/golang.git/golang
+module myproject 
 
 go 1.23.0
 

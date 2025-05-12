@@ -1,6 +1,6 @@
 package service
 
-import "github.com/ntthanh2603/golang.git/internal/repo"
+import "myproject/internal/repo"
 
 type UserService struct {
 	userRepo *repo.UserRepo

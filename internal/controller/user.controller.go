@@ -1,9 +1,11 @@
 package controller
 
 import (
+	"myproject/internal/service"
+
+	"myproject/pkg/response"
+
 	"github.com/gin-gonic/gin"
-	"github.com/ntthanh2603/golang.git/internal/service"
-	"github.com/ntthanh2603/golang.git/pkg/response"
 )
 
 type UserController struct {

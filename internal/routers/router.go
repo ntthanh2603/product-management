@@ -3,9 +3,10 @@ package routers
 import (
 	"net/http"
 
+	"myproject/internal/controller"
+	middlewares "myproject/internal/midderwares"
+
 	"github.com/gin-gonic/gin"
-	"github.com/ntthanh2603/golang.git/internal/controller"
-	middlewares "github.com/ntthanh2603/golang.git/internal/midderwares"
 )
 
 // func Middleware_A() gin.HandlerFunc {

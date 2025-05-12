@@ -1,6 +1,6 @@
 package main
 
-import "github.com/ntthanh2603/golang.git/internal/routers"
+import "myproject/internal/routers"
 
 func main() {
 	r := routers.NewRouter()
