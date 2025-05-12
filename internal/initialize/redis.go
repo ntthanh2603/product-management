@@ -1,0 +1,3 @@
+package initialize
+
+func InitRedis() {}
