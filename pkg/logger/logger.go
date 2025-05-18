@@ -1,6 +1,10 @@
 package logger
 
 import (
+	"myproject/pkg/setting"
+	"os"
+
+	"github.com/natefinch/lumberjack"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 )
@@ -8,13 +12,36 @@ import (
 type LoggerZap struct {
 	*zap.Logger
 }
-func NewLogger() {
+
+func NewLogger(config setting.LoggerSetting) *LoggerZap {
+	logLevel := "debug"
+	var level zapcore.Level
+	switch logLevel {
+		case "debug":
+			level = zap.DebugLevel
+		case "info":
+			level = zap.InfoLevel
+		case "warn":
+			level = zap.WarnLevel
+		case "error":
+			level = zap.ErrorLevel
+		default:
+			level = zap.InfoLevel
+	}
 	encoder := getEncoderLog()
+	hook := lumberjack.Logger{
+		Filename: config.File_log_name, // path to your file
+		MaxSize: config.Max_age, // megabytes
+		MaxBackups: config.Max_backups,  // keep at most 5 old log files
+		MaxAge: config.Max_age ,// days
+		Compress: config.Compress ,// disable by default
+	}
 	core := zapcore.NewCore(
 		encoder, 
-		hook := lumber
-		, zap.InfoLevel)
-	logger := zap.New(core, zap.AddCaller())
+		zapcore.NewMultiWriteSyncer(zapcore.AddSync(os.Stdout), zapcore.AddSync(&hook)),
+		level,
+	)
+	return &LoggerZap{zap.New(core, zap.AddCaller(), zap.AddStacktrace(zap.ErrorLevel))}
 }
 
 // Format log
