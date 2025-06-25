@@ -1,5 +1,0 @@
-package initialize
-
-func InitPostgres() {
-	
-}
