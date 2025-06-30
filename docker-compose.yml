@@ -2,7 +2,7 @@ services:
   gateway:
     build:
       context: .
-      dockerfile: ./gateway/Dockerfile
+      dockerfile: ./api-gateway/Dockerfile
     ports:
       - "3000:3000"
     environment:
@@ -11,7 +11,7 @@ services:
   tasks:
     build:
       context: .
-      dockerfile: ./tasks/Dockerfile
+      dockerfile: ./tasks-service/Dockerfile
     ports:
       - "3002:3002"
     environment:
@@ -20,7 +20,7 @@ services:
   workspaces:
     build:
       context: .
-      dockerfile: ./workspaces/Dockerfile
+      dockerfile: ./workspaces-service/Dockerfile
     ports:
       - "3001:3001"
     environment:
