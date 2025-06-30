@@ -9,14 +9,14 @@ export class ConfigService {
     this.envConfig.workspacesService = {
       options: {
         port: 3001,
-        host: 'localhost',
+        host: 'workspaces',
       },
       transport: Transport.TCP,
     };
     this.envConfig.tasksService = {
       options: {
         port: 3002,
-        host: 'localhost',
+        host: 'tasks',
       },
       transport: Transport.TCP,
     };

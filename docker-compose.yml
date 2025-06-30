@@ -7,6 +7,12 @@ services:
       - "3000:3000"
     environment:
       - NODE_ENV=production
+      - TASKS_SERVICE_URL=http://tasks:3002
+      - WORKSPACES_SERVICE_URL=http://workspaces:3001
+    depends_on:
+      - tasks
+      - workspaces
+      - db
 
   tasks:
     build:
@@ -16,6 +22,9 @@ services:
       - "3002:3002"
     environment:
       - NODE_ENV=production
+      - DATABASE_URL=postgresql://postgres:postgres@db:5432/postgres
+    depends_on:
+      - db
 
   workspaces:
     build:
@@ -25,6 +34,9 @@ services:
       - "3001:3001"
     environment:
       - NODE_ENV=production
+      - DATABASE_URL=postgresql://postgres:postgres@db:5432/postgres
+    depends_on:
+      - db
 
   db:
     image: postgres:latest
