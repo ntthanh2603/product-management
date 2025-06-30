@@ -10,7 +10,7 @@ export class TasksController {
   ) {}
 
   @Get()
-  async getTasks() {
-    return this.tasksService.send({ cmd: 'get_tasks' }, {});
+  async getTasks(data: string = 'Get tasks from API Gateway!') {
+    return this.tasksService.send('get_tasks', { data });
   }
 }

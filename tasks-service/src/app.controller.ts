@@ -6,8 +6,8 @@ import { MessagePattern } from '@nestjs/microservices';
 export class AppController {
   constructor(private readonly appService: AppService) {}
 
-  @MessagePattern({ cmd: 'get_tasks' })
-  get(): string {
-    return 'Get tasks!';
+  @MessagePattern('get_tasks')
+  get(data: string): string {
+    return data;
   }
 }

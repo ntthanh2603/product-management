@@ -6,7 +6,7 @@ import { MessagePattern } from '@nestjs/microservices';
 export class AppController {
   constructor(private readonly appService: AppService) {}
 
-  @MessagePattern({ cmd: 'get_workspaces' })
+  @MessagePattern('get_workspaces')
   getWorkspaces(): string {
     return 'Get workspaces!';
   }

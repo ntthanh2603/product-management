@@ -12,6 +12,6 @@ export class WorkspaceController {
 
   @Get()
   async getWorkspaces() {
-    return this.workspacesService.send({ cmd: 'get_workspaces' }, {});
+    return this.workspacesService.send('get_workspaces', {});
   }
 }
