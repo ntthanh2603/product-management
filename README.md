@@ -7,7 +7,19 @@
 
 ### Run project Tasks Manager use NestJS Microservice with transport TCP
 
+#### Run with task file
+
 ```bash
+# Install
+task install
+# Running app
+task dev
+```
+
+#### Run with docker compose
+
+```bash
+# Update "host" in config.service.ts is "workspaces" and "tasks"
 docker compose up -d --build
 ```
 

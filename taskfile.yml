@@ -1,0 +1,25 @@
+version: "3"
+dotenv: ["core-api/.env"]
+includes:
+  api-gateway:
+    taskfile: ./api-gateway/taskfile.yml
+    dir: ./api-gateway
+  tasks-service:
+    taskfile: ./tasks-service/taskfile.yml
+    dir: ./tasks-service
+  workspaces-service:
+    taskfile: ./workspaces-service/taskfile.yml
+    dir: ./workspaces-service
+
+tasks:
+  dev:
+    cmds:
+      - task api-gateway:dev &
+      - task tasks-service:dev &
+      - task workspaces-service:dev
+
+  install:
+    deps:
+      - api-gateway:install
+      - tasks-service:install
+      - workspaces-service:install
