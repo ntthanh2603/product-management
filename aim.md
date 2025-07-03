@@ -35,13 +35,13 @@ Client (REST API)
 API Gateway (REST)
     ↓ (gRPC)
 ┌─────────────────────────────────┐
-│  User Service    │  Order Service │
-│     (gRPC)       │     (gRPC)     │
+│  User Service  │  Order Service │
+│     (gRPC)     │     (gRPC)     │
 └─────────────────────────────────┘
     ↓ (gRPC)           ↓ (gRPC)
 ┌─────────────────────────────────┐
-│ Product Service  │ Payment Service│
-│     (gRPC)       │     (gRPC)     │
+│ Product Service│ Payment Service│
+│     (gRPC)     │     (gRPC)     │
 └─────────────────────────────────┘
 ```
 
