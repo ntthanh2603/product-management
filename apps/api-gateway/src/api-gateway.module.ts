@@ -3,9 +3,14 @@ import { ClientsModule, Transport } from '@nestjs/microservices';
 import { join } from 'path';
 import { OrderController } from './controllers/order.controller';
 import { UserController } from './controllers/user.controller';
+import { ConfigModule } from '@nestjs/config';
 
 @Module({
   imports: [
+    ConfigModule.forRoot({
+      isGlobal: true,
+      envFilePath: ['.env'],
+    }),
     ClientsModule.register([
       {
         name: 'USER_SERVICE',
@@ -13,7 +18,7 @@ import { UserController } from './controllers/user.controller';
         options: {
           package: 'user',
           protoPath: join(__dirname, '../../../proto/user.proto'),
-          url: 'localhost:5001',
+          url: 'user-service:3008',
         },
       },
       {
@@ -22,7 +27,7 @@ import { UserController } from './controllers/user.controller';
         options: {
           package: 'order',
           protoPath: join(__dirname, '../../../proto/order.proto'),
-          url: 'localhost:5002',
+          url: 'order-service:3006',
         },
       },
     ]),
