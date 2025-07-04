@@ -68,7 +68,6 @@ npm install -D @types/node ts-proto
 ### Cấu trúc thư mục
 
 ```
-project/
 ├── proto/
 │   ├── user.proto
 │   ├── order.proto

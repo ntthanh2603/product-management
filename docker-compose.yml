@@ -1,0 +1,46 @@
+version: "3.8"
+
+services:
+  user-service:
+    build:
+      context: .
+      dockerfile: apps/user-service/Dockerfile
+    ports:
+      - "5001:5001"
+    environment:
+      - NODE_ENV=production
+    networks:
+      - microservices-network
+
+  order-service:
+    build:
+      context: .
+      dockerfile: apps/order-service/Dockerfile
+    ports:
+      - "5002:5002"
+    environment:
+      - NODE_ENV=production
+    depends_on:
+      - user-service
+    networks:
+      - microservices-network
+
+  api-gateway:
+    build:
+      context: .
+      dockerfile: apps/api-gateway/Dockerfile
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      - USER_SERVICE_URL=user-service:5001
+      - ORDER_SERVICE_URL=order-service:5002
+    depends_on:
+      - user-service
+      - order-service
+    networks:
+      - microservices-network
+
+networks:
+  microservices-network:
+    driver: bridge
