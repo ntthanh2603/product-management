@@ -1,5 +1,6 @@
 import { Controller, Get, Post, Body, Inject, Param } from '@nestjs/common';
 import { ClientGrpc } from '@nestjs/microservices';
+import { ApiTags } from '@nestjs/swagger';
 import { Observable } from 'rxjs';
 
 interface OrderService {
@@ -8,6 +9,7 @@ interface OrderService {
   GetOrdersByUser(data: any): Observable<any>;
 }
 
+@ApiTags('Orders')
 @Controller('orders')
 export class OrderController {
   private orderService: OrderService;

@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { ClientsModule, Transport } from '@nestjs/microservices';
 import { join } from 'path';
 import { OrderService } from './order.service';
+import { DatabaseModule } from './database/database.module';
 
 @Module({
   imports: [
@@ -18,6 +19,6 @@ import { OrderService } from './order.service';
     ]),
   ],
   controllers: [],
-  providers: [OrderService],
+  providers: [OrderService, DatabaseModule],
 })
 export class OrderModule {}

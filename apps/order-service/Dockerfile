@@ -1,13 +1,24 @@
-FROM node:18-alpine
+# Build stage
+FROM node:20-alpine AS builder
 
 WORKDIR /app
 
-COPY package*.json ./
-RUN npm ci --only=production
+COPY ./order-service/package*.json ./
+RUN npm install
 
-COPY . .
+COPY ./order-service ./
 RUN npm run build
 
-EXPOSE 5002
+# Production stage
+FROM node:20-alpine
 
-CMD ["node", "dist/main"]
+WORKDIR /app
+
+COPY ./order-service/package*.json ./
+RUN npm install --omit=dev
+
+COPY --from=builder /app/dist ./dist
+
+EXPOSE 3006
+
+CMD ["node", "dist/main.js"]

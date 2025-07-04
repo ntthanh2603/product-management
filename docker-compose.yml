@@ -6,7 +6,7 @@ services:
       context: .
       dockerfile: apps/user-service/Dockerfile
     ports:
-      - "5001:5001"
+      - "3008:3008"
     environment:
       - NODE_ENV=production
     networks:
@@ -17,7 +17,7 @@ services:
       context: .
       dockerfile: apps/order-service/Dockerfile
     ports:
-      - "5002:5002"
+      - "3006:3006"
     environment:
       - NODE_ENV=production
     depends_on:
@@ -33,8 +33,8 @@ services:
       - "3000:3000"
     environment:
       - NODE_ENV=production
-      - USER_SERVICE_URL=user-service:5001
-      - ORDER_SERVICE_URL=order-service:5002
+      - USER_SERVICE_URL=user-service:3008
+      - ORDER_SERVICE_URL=order-service:3006
     depends_on:
       - user-service
       - order-service

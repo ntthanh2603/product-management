@@ -11,6 +11,7 @@ import {
   OnModuleInit,
 } from '@nestjs/common';
 import { ClientGrpc } from '@nestjs/microservices';
+import { ApiTags } from '@nestjs/swagger';
 import { Observable } from 'rxjs';
 import {
   CreateUserDto,
@@ -26,6 +27,7 @@ interface UserService {
   getUsers(request: any): Observable<any>;
 }
 
+@ApiTags('Users')
 @Controller('users')
 export class UserController implements OnModuleInit {
   private userService: UserService;
