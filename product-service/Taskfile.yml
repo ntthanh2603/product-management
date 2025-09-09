@@ -1,0 +1,19 @@
+version: '3'
+vars:
+  SERVICE_NAME: Product Service
+  SERVICE_PORT: 50052
+tasks:
+  default:
+    desc: Show available tasks for Product Service
+    cmds:
+      - task --list
+  install:
+    desc: Install Product Service dependencies
+    cmds:
+      - echo "Installing dependencies..."
+      - pip install -r requirements.txt
+  dev:
+    desc: Start Product Service in development mode
+    cmds:
+      - echo "Starting service..."
+      - python product_service.py

@@ -1,0 +1,6 @@
+grpcio==1.60.0
+grpcio-tools==1.60.0
+grpcio-status==1.60.0
+googleapis-common-protos==1.62.0
+sqlalchemy==2.0.23
+python-dotenv==1.0.0
