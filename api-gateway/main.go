@@ -1,3 +1,21 @@
+// Package main API Gateway for Microservices
+// @title           Microservices API Gateway
+// @version         1.0
+// @description     API Gateway for User and Product microservices
+// @termsOfService  http://swagger.io/terms/
+
+// @contact.name   API Support
+// @contact.url    http://www.example.com/support
+// @contact.email  support@example.com
+
+// @license.name  Apache 2.0
+// @license.url   http://www.apache.org/licenses/LICENSE-2.0.html
+
+// @host      localhost:8000
+// @BasePath  /api
+
+// @securityDefinitions.basic  BasicAuth
+
 package main
 
 import (
@@ -6,14 +24,18 @@ import (
 	"strconv"
 	"time"
 
+	"api-gateway/models"
 	"api-gateway/proto"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
 	"github.com/gofiber/fiber/v2/middleware/logger"
 	"github.com/gofiber/fiber/v2/middleware/recover"
+	"github.com/gofiber/swagger"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
+
+	_ "api-gateway/docs"
 )
 
 type GrpcClients struct {
@@ -47,6 +69,9 @@ func main() {
 		AllowHeaders: "Origin,Content-Type,Accept,Authorization",
 	}))
 
+	// Swagger documentation
+	app.Get("/swagger/*", swagger.HandlerDefault)
+
 	// Health check endpoint
 	app.Get("/health", healthCheck)
 
@@ -72,6 +97,7 @@ func main() {
 	log.Println("📍 User endpoints: /api/users")
 	log.Println("📍 Product endpoints: /api/products")
 	log.Println("📍 Health check: /health")
+	log.Println("📖 Swagger documentation: /swagger/")
 
 	log.Fatal(app.Listen(":8000"))
 }
@@ -107,6 +133,14 @@ func globalErrorHandler(c *fiber.Ctx, err error) error {
 	})
 }
 
+// healthCheck Health Check
+// @Summary      Health check endpoint
+// @Description  Check the health status of the API Gateway and connected services
+// @Tags         Health
+// @Accept       json
+// @Produce      json
+// @Success      200  {object}  models.HealthResponse
+// @Router       /health [get]
 func healthCheck(c *fiber.Ctx) error {
 	return c.JSON(fiber.Map{
 		"status": "healthy",
@@ -119,12 +153,20 @@ func healthCheck(c *fiber.Ctx) error {
 }
 
 // User endpoint handlers
+
+// createUser Create User
+// @Summary      Create a new user
+// @Description  Create a new user with name, email, and age
+// @Tags         Users
+// @Accept       json
+// @Produce      json
+// @Param        user  body      models.CreateUserRequest  true  "User creation request"
+// @Success      200   {object}  models.UserResponse
+// @Failure      400   {object}  models.ErrorResponse
+// @Failure      500   {object}  models.ErrorResponse
+// @Router       /users [post]
 func createUser(c *fiber.Ctx) error {
-	var req struct {
-		Name  string `json:"name"`
-		Email string `json:"email"`
-		Age   int32  `json:"age"`
-	}
+	var req models.CreateUserRequest
 
 	if err := c.BodyParser(&req); err != nil {
 		return c.Status(400).JSON(fiber.Map{"error": "Invalid request body"})
@@ -149,6 +191,18 @@ func createUser(c *fiber.Ctx) error {
 	})
 }
 
+// getUser Get User
+// @Summary      Get user by ID
+// @Description  Get a user by their ID
+// @Tags         Users
+// @Accept       json
+// @Produce      json
+// @Param        id   path      int  true  "User ID"
+// @Success      200  {object}  models.User
+// @Failure      400  {object}  models.ErrorResponse
+// @Failure      404  {object}  models.ErrorResponse
+// @Failure      500  {object}  models.ErrorResponse
+// @Router       /users/{id} [get]
 func getUser(c *fiber.Ctx) error {
 	id, err := strconv.Atoi(c.Params("id"))
 	if err != nil {
@@ -175,6 +229,17 @@ func getUser(c *fiber.Ctx) error {
 	})
 }
 
+// listUsers List Users
+// @Summary      List all users with pagination
+// @Description  Get a paginated list of all users
+// @Tags         Users
+// @Accept       json
+// @Produce      json
+// @Param        page   query     int  false  "Page number"  default(1)
+// @Param        limit  query     int  false  "Items per page"  default(10)
+// @Success      200    {object}  models.UsersListResponse
+// @Failure      500    {object}  models.ErrorResponse
+// @Router       /users [get]
 func listUsers(c *fiber.Ctx) error {
 	page, _ := strconv.Atoi(c.Query("page", "1"))
 	limit, _ := strconv.Atoi(c.Query("limit", "10"))
@@ -198,17 +263,25 @@ func listUsers(c *fiber.Ctx) error {
 	})
 }
 
+// updateUser Update User
+// @Summary      Update an existing user
+// @Description  Update a user's information by ID
+// @Tags         Users
+// @Accept       json
+// @Produce      json
+// @Param        id    path      int                        true  "User ID"
+// @Param        user  body      models.UpdateUserRequest  true  "User update request"
+// @Success      200   {object}  models.UserResponse
+// @Failure      400   {object}  models.ErrorResponse
+// @Failure      500   {object}  models.ErrorResponse
+// @Router       /users/{id} [put]
 func updateUser(c *fiber.Ctx) error {
 	id, err := strconv.Atoi(c.Params("id"))
 	if err != nil {
 		return c.Status(400).JSON(fiber.Map{"error": "Invalid user ID"})
 	}
 
-	var req struct {
-		Name  string `json:"name"`
-		Email string `json:"email"`
-		Age   int32  `json:"age"`
-	}
+	var req models.UpdateUserRequest
 
 	if err := c.BodyParser(&req); err != nil {
 		return c.Status(400).JSON(fiber.Map{"error": "Invalid request body"})
@@ -234,6 +307,17 @@ func updateUser(c *fiber.Ctx) error {
 	})
 }
 
+// deleteUser Delete User
+// @Summary      Delete a user
+// @Description  Delete a user by their ID
+// @Tags         Users
+// @Accept       json
+// @Produce      json
+// @Param        id   path      int  true  "User ID"
+// @Success      200  {object}  models.SuccessResponse
+// @Failure      400  {object}  models.ErrorResponse
+// @Failure      500  {object}  models.ErrorResponse
+// @Router       /users/{id} [delete]
 func deleteUser(c *fiber.Ctx) error {
 	id, err := strconv.Atoi(c.Params("id"))
 	if err != nil {
@@ -257,13 +341,20 @@ func deleteUser(c *fiber.Ctx) error {
 }
 
 // Product endpoint handlers
+
+// createProduct Create Product
+// @Summary      Create a new product
+// @Description  Create a new product with name, description, price and user_id
+// @Tags         Products
+// @Accept       json
+// @Produce      json
+// @Param        product  body      models.CreateProductRequest  true  "Product creation request"
+// @Success      200      {object}  models.ProductResponse
+// @Failure      400      {object}  models.ErrorResponse
+// @Failure      500      {object}  models.ErrorResponse
+// @Router       /products [post]
 func createProduct(c *fiber.Ctx) error {
-	var req struct {
-		Name        string  `json:"name"`
-		Description string  `json:"description"`
-		Price       float64 `json:"price"`
-		UserId      int32   `json:"user_id"`
-	}
+	var req models.CreateProductRequest
 
 	if err := c.BodyParser(&req); err != nil {
 		return c.Status(400).JSON(fiber.Map{"error": "Invalid request body"})
@@ -276,7 +367,7 @@ func createProduct(c *fiber.Ctx) error {
 		Name:        req.Name,
 		Description: req.Description,
 		Price:       req.Price,
-		UserId:      req.UserId,
+		UserId:      req.UserID,
 	})
 	if err != nil {
 		return c.Status(500).JSON(fiber.Map{"error": err.Error()})
@@ -289,6 +380,18 @@ func createProduct(c *fiber.Ctx) error {
 	})
 }
 
+// getProduct Get Product
+// @Summary      Get product by ID
+// @Description  Get a product by its ID
+// @Tags         Products
+// @Accept       json
+// @Produce      json
+// @Param        id   path      int  true  "Product ID"
+// @Success      200  {object}  models.Product
+// @Failure      400  {object}  models.ErrorResponse
+// @Failure      404  {object}  models.ErrorResponse
+// @Failure      500  {object}  models.ErrorResponse
+// @Router       /products/{id} [get]
 func getProduct(c *fiber.Ctx) error {
 	id, err := strconv.Atoi(c.Params("id"))
 	if err != nil {
@@ -315,6 +418,17 @@ func getProduct(c *fiber.Ctx) error {
 	})
 }
 
+// listProducts List Products
+// @Summary      List all products with pagination
+// @Description  Get a paginated list of all products
+// @Tags         Products
+// @Accept       json
+// @Produce      json
+// @Param        page   query     int  false  "Page number"  default(1)
+// @Param        limit  query     int  false  "Items per page"  default(10)
+// @Success      200    {object}  models.ProductsListResponse
+// @Failure      500    {object}  models.ErrorResponse
+// @Router       /products [get]
 func listProducts(c *fiber.Ctx) error {
 	page, _ := strconv.Atoi(c.Query("page", "1"))
 	limit, _ := strconv.Atoi(c.Query("limit", "10"))
@@ -338,6 +452,17 @@ func listProducts(c *fiber.Ctx) error {
 	})
 }
 
+// getUserProducts Get User Products
+// @Summary      Get products by user ID
+// @Description  Get all products belonging to a specific user
+// @Tags         Users
+// @Accept       json
+// @Produce      json
+// @Param        id   path      int  true  "User ID"
+// @Success      200  {object}  models.UserProductsResponse
+// @Failure      400  {object}  models.ErrorResponse
+// @Failure      500  {object}  models.ErrorResponse
+// @Router       /users/{id}/products [get]
 func getUserProducts(c *fiber.Ctx) error {
 	id, err := strconv.Atoi(c.Params("id"))
 	if err != nil {

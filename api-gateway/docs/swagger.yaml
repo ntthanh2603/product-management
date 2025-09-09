@@ -1,0 +1,509 @@
+basePath: /api
+definitions:
+  CreateProductRequest:
+    description: Request body for creating a product
+    properties:
+      description:
+        example: Latest iPhone model
+        type: string
+      name:
+        example: iPhone 15
+        type: string
+      price:
+        example: 999.99
+        type: number
+      user_id:
+        example: 1
+        type: integer
+    required:
+    - description
+    - name
+    - price
+    - user_id
+    type: object
+  CreateUserRequest:
+    description: Request body for creating a user
+    properties:
+      age:
+        example: 30
+        type: integer
+      email:
+        example: john@example.com
+        type: string
+      name:
+        example: John Doe
+        type: string
+    required:
+    - age
+    - email
+    - name
+    type: object
+  ErrorResponse:
+    description: Error response
+    properties:
+      code:
+        example: 400
+        type: integer
+      error:
+        example: Invalid request
+        type: string
+    type: object
+  HealthResponse:
+    description: Health check response
+    properties:
+      services:
+        additionalProperties:
+          type: string
+        type: object
+      status:
+        example: healthy
+        type: string
+      time:
+        example: "2023-01-01T12:00:00Z"
+        type: string
+    type: object
+  Product:
+    description: Product information
+    properties:
+      created_at:
+        example: "2023-01-01T12:00:00Z"
+        type: string
+      description:
+        example: Latest iPhone model
+        type: string
+      id:
+        example: 1
+        type: integer
+      name:
+        example: iPhone 15
+        type: string
+      price:
+        example: 999.99
+        type: number
+      user_id:
+        example: 1
+        type: integer
+    type: object
+  ProductResponse:
+    description: Product response
+    properties:
+      message:
+        example: Product created successfully
+        type: string
+      product:
+        $ref: '#/definitions/Product'
+      success:
+        example: true
+        type: boolean
+    type: object
+  ProductsListResponse:
+    description: Products list response
+    properties:
+      limit:
+        example: 10
+        type: integer
+      page:
+        example: 1
+        type: integer
+      products:
+        items:
+          $ref: '#/definitions/Product'
+        type: array
+      total:
+        example: 50
+        type: integer
+    type: object
+  SuccessResponse:
+    description: Success response
+    properties:
+      message:
+        example: Operation completed successfully
+        type: string
+      success:
+        example: true
+        type: boolean
+    type: object
+  UpdateUserRequest:
+    description: Request body for updating a user
+    properties:
+      age:
+        example: 30
+        type: integer
+      email:
+        example: john@example.com
+        type: string
+      name:
+        example: John Doe
+        type: string
+    required:
+    - age
+    - email
+    - name
+    type: object
+  User:
+    description: User information
+    properties:
+      age:
+        example: 30
+        type: integer
+      created_at:
+        example: "2023-01-01T12:00:00Z"
+        type: string
+      email:
+        example: john@example.com
+        type: string
+      id:
+        example: 1
+        type: integer
+      name:
+        example: John Doe
+        type: string
+    type: object
+  UserProductsResponse:
+    description: User products response
+    properties:
+      products:
+        items:
+          $ref: '#/definitions/Product'
+        type: array
+      total:
+        example: 5
+        type: integer
+    type: object
+  UserResponse:
+    description: User response
+    properties:
+      message:
+        example: User created successfully
+        type: string
+      success:
+        example: true
+        type: boolean
+      user:
+        $ref: '#/definitions/User'
+    type: object
+  UsersListResponse:
+    description: Users list response
+    properties:
+      limit:
+        example: 10
+        type: integer
+      page:
+        example: 1
+        type: integer
+      total:
+        example: 100
+        type: integer
+      users:
+        items:
+          $ref: '#/definitions/User'
+        type: array
+    type: object
+host: localhost:8000
+info:
+  contact:
+    email: support@example.com
+    name: API Support
+    url: http://www.example.com/support
+  description: API Gateway for User and Product microservices
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  termsOfService: http://swagger.io/terms/
+  title: Microservices API Gateway
+  version: "1.0"
+paths:
+  /health:
+    get:
+      consumes:
+      - application/json
+      description: Check the health status of the API Gateway and connected services
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/HealthResponse'
+      summary: Health check endpoint
+      tags:
+      - Health
+  /products:
+    get:
+      consumes:
+      - application/json
+      description: Get a paginated list of all products
+      parameters:
+      - default: 1
+        description: Page number
+        in: query
+        name: page
+        type: integer
+      - default: 10
+        description: Items per page
+        in: query
+        name: limit
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/ProductsListResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+      summary: List all products with pagination
+      tags:
+      - Products
+    post:
+      consumes:
+      - application/json
+      description: Create a new product with name, description, price and user_id
+      parameters:
+      - description: Product creation request
+        in: body
+        name: product
+        required: true
+        schema:
+          $ref: '#/definitions/CreateProductRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/ProductResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+      summary: Create a new product
+      tags:
+      - Products
+  /products/{id}:
+    get:
+      consumes:
+      - application/json
+      description: Get a product by its ID
+      parameters:
+      - description: Product ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/Product'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+      summary: Get product by ID
+      tags:
+      - Products
+  /users:
+    get:
+      consumes:
+      - application/json
+      description: Get a paginated list of all users
+      parameters:
+      - default: 1
+        description: Page number
+        in: query
+        name: page
+        type: integer
+      - default: 10
+        description: Items per page
+        in: query
+        name: limit
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/UsersListResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+      summary: List all users with pagination
+      tags:
+      - Users
+    post:
+      consumes:
+      - application/json
+      description: Create a new user with name, email, and age
+      parameters:
+      - description: User creation request
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/CreateUserRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/UserResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+      summary: Create a new user
+      tags:
+      - Users
+  /users/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete a user by their ID
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/SuccessResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+      summary: Delete a user
+      tags:
+      - Users
+    get:
+      consumes:
+      - application/json
+      description: Get a user by their ID
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/User'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+      summary: Get user by ID
+      tags:
+      - Users
+    put:
+      consumes:
+      - application/json
+      description: Update a user's information by ID
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: User update request
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/UpdateUserRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/UserResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+      summary: Update an existing user
+      tags:
+      - Users
+  /users/{id}/products:
+    get:
+      consumes:
+      - application/json
+      description: Get all products belonging to a specific user
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/UserProductsResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+      summary: Get products by user ID
+      tags:
+      - Users
+securityDefinitions:
+  BasicAuth:
+    type: basic
+swagger: "2.0"
