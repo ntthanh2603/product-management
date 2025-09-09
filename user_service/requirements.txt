@@ -1,0 +1,4 @@
+grpcio==1.60.0
+grpcio-tools==1.60.0
+SQLAlchemy==2.0.23
+python-dotenv==1.0.0
