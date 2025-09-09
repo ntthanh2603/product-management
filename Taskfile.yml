@@ -1,0 +1,57 @@
+version: "3"
+vars:
+  USER_SERVICE_DIR: user-service
+  PRODUCT_SERVICE_DIR: product-service
+  API_GATEWAY_DIR: api-gateway
+tasks:
+  default:
+    desc: Show all available tasks
+    cmds:
+      - task --list
+  install:
+    desc: Install dependencies for all services
+    cmds:
+      - task: install-user
+      - task: install-product
+      - task: install-gateway
+  dev:
+    desc: Start all services in development mode
+    deps:
+      - dev-user
+      - dev-product
+      - dev-gateway
+  install-user:
+    desc: Install User Service dependencies
+    dir: "{{.USER_SERVICE_DIR}}"
+    cmds:
+      - npm install
+
+  install-product:
+    desc: Install Product Service dependencies
+    dir: "{{.PRODUCT_SERVICE_DIR}}"
+    cmds:
+      - pip install -r requirements.txt
+
+  install-gateway:
+    desc: Install API Gateway dependencies
+    dir: "{{.API_GATEWAY_DIR}}"
+    cmds:
+      - go mod tidy
+
+  dev-user:
+    desc: Start User Service in development mode
+    dir: "{{.USER_SERVICE_DIR}}"
+    cmds:
+      - npm run start:dev
+
+  dev-product:
+    desc: Start Product Service in development mode
+    dir: "{{.PRODUCT_SERVICE_DIR}}"
+    cmds:
+      - python product_service.py
+
+  dev-gateway:
+    desc: Start API Gateway in development mode
+    dir: "{{.API_GATEWAY_DIR}}"
+    cmds:
+      - go run main.go

@@ -1,0 +1,19 @@
+version: '3'
+vars:
+  SERVICE_NAME: API Gateway
+  SERVICE_PORT: 8000
+tasks:
+  default:
+    desc: Show available tasks for API Gateway
+    cmds:
+      - task --list
+  install:
+    desc: Install API Gateway dependencies
+    cmds:
+      - echo "Installing dependencies..."
+      - go mod tidy
+  dev:
+    desc: Start API Gateway in development mode
+    cmds:
+      - echo "Starting service..."
+      - go run main.go
