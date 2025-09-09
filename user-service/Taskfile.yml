@@ -1,0 +1,19 @@
+version: '3'
+vars:
+  SERVICE_NAME: User Service
+  SERVICE_PORT: 50051
+tasks:
+  default:
+    desc: Show available tasks for User Service
+    cmds:
+      - task --list
+  install:
+    desc: Install User Service dependencies
+    cmds:
+      - echo "Installing dependencies..."
+      - npm install
+  dev:
+    desc: Start User Service in development mode
+    cmds:
+      - echo "Starting service..."
+      - npm run start:dev

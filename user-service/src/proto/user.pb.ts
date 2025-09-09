@@ -1,0 +1,151 @@
+/* eslint-disable */
+import { GrpcMethod, GrpcStreamMethod } from "@nestjs/microservices";
+import { Observable } from "rxjs";
+
+export const protobufPackage = "user";
+
+export interface User {
+  id: number;
+  name: string;
+  email: string;
+  age: number;
+  createdAt: string;
+}
+
+export interface CreateUserRequest {
+  name: string;
+  email: string;
+  age: number;
+}
+
+export interface CreateUserResponse {
+  user: User | undefined;
+  success: boolean;
+  message: string;
+}
+
+export interface GetUserRequest {
+  userId: number;
+}
+
+export interface GetUserResponse {
+  user: User | undefined;
+  found: boolean;
+}
+
+export interface UpdateUserRequest {
+  userId: number;
+  name: string;
+  email: string;
+  age: number;
+}
+
+export interface UpdateUserResponse {
+  user: User | undefined;
+  success: boolean;
+  message: string;
+}
+
+export interface DeleteUserRequest {
+  userId: number;
+}
+
+export interface DeleteUserResponse {
+  success: boolean;
+  message: string;
+}
+
+export interface ListUsersRequest {
+  page: number;
+  limit: number;
+}
+
+export interface ListUsersResponse {
+  users: User[];
+  total: number;
+  page: number;
+  limit: number;
+}
+
+export const USER_PACKAGE_NAME = "user";
+
+export interface UserServiceClient {
+  createUser(request: CreateUserRequest): Observable<CreateUserResponse>;
+
+  getUser(request: GetUserRequest): Observable<GetUserResponse>;
+
+  updateUser(request: UpdateUserRequest): Observable<UpdateUserResponse>;
+
+  deleteUser(request: DeleteUserRequest): Observable<DeleteUserResponse>;
+
+  listUsers(request: ListUsersRequest): Observable<ListUsersResponse>;
+}
+
+export interface UserServiceController {
+  createUser(
+    request: CreateUserRequest
+  ):
+    | Promise<CreateUserResponse>
+    | Observable<CreateUserResponse>
+    | CreateUserResponse;
+
+  getUser(
+    request: GetUserRequest
+  ): Promise<GetUserResponse> | Observable<GetUserResponse> | GetUserResponse;
+
+  updateUser(
+    request: UpdateUserRequest
+  ):
+    | Promise<UpdateUserResponse>
+    | Observable<UpdateUserResponse>
+    | UpdateUserResponse;
+
+  deleteUser(
+    request: DeleteUserRequest
+  ):
+    | Promise<DeleteUserResponse>
+    | Observable<DeleteUserResponse>
+    | DeleteUserResponse;
+
+  listUsers(
+    request: ListUsersRequest
+  ):
+    | Promise<ListUsersResponse>
+    | Observable<ListUsersResponse>
+    | ListUsersResponse;
+}
+
+export function UserServiceControllerMethods() {
+  return function (constructor: Function) {
+    const grpcMethods: string[] = [
+      "createUser",
+      "getUser",
+      "updateUser",
+      "deleteUser",
+      "listUsers",
+    ];
+    for (const method of grpcMethods) {
+      const descriptor: any = Reflect.getOwnPropertyDescriptor(
+        constructor.prototype,
+        method
+      );
+      GrpcMethod("UserService", method)(
+        constructor.prototype[method],
+        method,
+        descriptor
+      );
+    }
+    const grpcStreamMethods: string[] = [];
+    for (const method of grpcStreamMethods) {
+      const descriptor: any = Reflect.getOwnPropertyDescriptor(
+        constructor.prototype,
+        method
+      );
+      GrpcStreamMethod("UserService", method)(
+        constructor.prototype[method],
+        method,
+        descriptor
+      );
+    }
+  };
+}
