@@ -1,0 +1,86 @@
+syntax = "proto3";
+
+package product;
+
+service ProductService {
+  rpc CreateProduct(CreateProductRequest) returns (CreateProductResponse);
+  rpc GetProduct(GetProductRequest) returns (GetProductResponse);
+  rpc UpdateProduct(UpdateProductRequest) returns (UpdateProductResponse);
+  rpc DeleteProduct(DeleteProductRequest) returns (DeleteProductResponse);
+  rpc ListProducts(ListProductsRequest) returns (ListProductsResponse);
+  rpc GetProductsByUser(GetProductsByUserRequest) returns (GetProductsByUserResponse);
+}
+
+message Product {
+  int32 id = 1;
+  string name = 2;
+  string description = 3;
+  double price = 4;
+  int32 user_id = 5;
+  string created_at = 6;
+}
+
+message CreateProductRequest {
+  string name = 1;
+  string description = 2;
+  double price = 3;
+  int32 user_id = 4;
+}
+
+message CreateProductResponse {
+  Product product = 1;
+  bool success = 2;
+  string message = 3;
+}
+
+message GetProductRequest {
+  int32 product_id = 1;
+}
+
+message GetProductResponse {
+  Product product = 1;
+  bool found = 2;
+}
+
+message UpdateProductRequest {
+  int32 product_id = 1;
+  string name = 2;
+  string description = 3;
+  double price = 4;
+}
+
+message UpdateProductResponse {
+  Product product = 1;
+  bool success = 2;
+  string message = 3;
+}
+
+message DeleteProductRequest {
+  int32 product_id = 1;
+}
+
+message DeleteProductResponse {
+  bool success = 1;
+  string message = 2;
+}
+
+message ListProductsRequest {
+  int32 page = 1;
+  int32 limit = 2;
+}
+
+message ListProductsResponse {
+  repeated Product products = 1;
+  int32 total = 2;
+  int32 page = 3;
+  int32 limit = 4;
+}
+
+message GetProductsByUserRequest {
+  int32 user_id = 1;
+}
+
+message GetProductsByUserResponse {
+  repeated Product products = 1;
+  int32 total = 2;
+}
