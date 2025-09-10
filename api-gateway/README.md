@@ -87,12 +87,10 @@ Context Timeout: 5 seconds
 
 ```bash
 # Generate Go protobuf types
-protoc --go_out=. --go_opt=paths=source_relative \
-       --go-grpc_out=. --go-grpc_opt=paths=source_relative \
-       ../protos/*.proto
+protoc -I=../protos ../protos/*.proto \
+  --go_out=proto --go_opt=paths=source_relative \
+  --go-grpc_out=proto --go-grpc_opt=paths=source_relative
 
-# Or use task runner
-task proto
 ```
 
 ## Running the Service

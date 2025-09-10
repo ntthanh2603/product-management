@@ -10,10 +10,37 @@ tasks:
   install:
     desc: Install Product Service dependencies
     cmds:
+      - echo "Setting up virtual environment and installing dependencies..."
+      - cmd: |
+          if [ ! -d "venv" ]; then
+            echo "Creating virtual environment..."
+            python -m venv venv
+          else
+            echo "Virtual environment already exists"
+          fi
+        platforms: [linux, darwin]
+      - cmd: 'powershell -c "if (!(Test-Path venv)) { Write-Host \"Creating virtual environment...\"; python -m venv venv } else { Write-Host \"Virtual environment already exists\" }"'
+        platforms: [windows]
       - echo "Installing dependencies..."
-      - pip install -r requirements.txt
+      - cmd: |
+          if [ -d "venv" ]; then
+            source venv/bin/activate && pip install -r requirements.txt
+          else
+            pip install -r requirements.txt
+          fi
+        platforms: [linux, darwin]
+      - cmd: 'powershell -c "if (Test-Path venv) { venv\\Scripts\\activate.ps1; pip install -r requirements.txt } else { pip install -r requirements.txt }"'
+        platforms: [windows]
   dev:
     desc: Start Product Service in development mode
     cmds:
       - echo "Starting service..."
-      - python product_service.py
+      - cmd: |
+          if [ -d "venv" ]; then
+            source venv/bin/activate && python product_service.py
+          else
+            python product_service.py
+          fi
+        platforms: [linux, darwin]
+      - cmd: 'powershell -c "if (Test-Path venv) { venv\\Scripts\\activate.ps1; python product_service.py } else { python product_service.py }"'
+        platforms: [windows]
