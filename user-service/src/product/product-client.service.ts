@@ -12,7 +12,7 @@ export class ProductClientService implements OnModuleInit {
   private readonly logger = new Logger(ProductClientService.name);
   private productService: ProductServiceClient;
 
-  constructor(@Inject('PRODUCT_PACKAGE') private client: ClientGrpc) {}
+  constructor(@Inject("PRODUCT_PACKAGE") private client: ClientGrpc) {}
 
   onModuleInit() {
     this.productService =

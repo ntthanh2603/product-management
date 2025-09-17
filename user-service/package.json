@@ -12,7 +12,7 @@
     "start:dev": "nest start --watch",
     "start:debug": "nest start --debug --watch",
     "start:prod": "node dist/main",
-    "proto": "protoc --plugin=protoc-gen-ts_proto=node_modules/.bin/protoc-gen-ts_proto --ts_proto_out=src/proto --ts_proto_opt=nestJs=true --ts_proto_opt=fileSuffix=.pb --proto_path=../protos ../protos/*.proto",
+    "proto": "protoc --plugin=protoc-gen-ts_proto=\"d:\\product-management\\user-service\\node_modules\\.bin\\protoc-gen-ts_proto.cmd\" --ts_proto_out=src/proto --ts_proto_opt=nestJs=true --ts_proto_opt=fileSuffix=.pb --proto_path=../protos ../protos/*.proto",
     "lint": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix",
     "test": "jest",
     "test:watch": "jest --watch",
@@ -35,7 +35,7 @@
     "reflect-metadata": "^0.1.13",
     "rxjs": "^7.8.1",
     "sqlite3": "^5.1.6",
-    "ts-proto": "^1.166.2",
+    "ts-proto": "^2.7.7",
     "typeorm": "^0.3.17"
   },
   "devDependencies": {
