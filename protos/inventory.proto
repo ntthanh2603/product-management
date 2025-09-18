@@ -1,0 +1,158 @@
+syntax = "proto3";
+
+package inventory;
+
+option go_package = "./proto";
+
+// Inventory Service
+service InventoryService {
+  rpc CreateInventoryItem(CreateInventoryItemRequest) returns (InventoryItemResponse);
+  rpc GetInventoryItem(GetInventoryItemRequest) returns (InventoryItemResponse);
+  rpc UpdateInventoryItem(UpdateInventoryItemRequest) returns (InventoryItemResponse);
+  rpc ListInventoryItems(ListInventoryItemsRequest) returns (ListInventoryItemsResponse);
+  rpc CheckStock(CheckStockRequest) returns (CheckStockResponse);
+  rpc ReserveStock(ReserveStockRequest) returns (ReserveStockResponse);
+  rpc ReleaseStock(ReleaseStockRequest) returns (ReleaseStockResponse);
+}
+
+// Order Service
+service OrderService {
+  rpc CreateOrder(CreateOrderRequest) returns (OrderResponse);
+  rpc GetOrder(GetOrderRequest) returns (OrderResponse);
+  rpc ListOrders(ListOrdersRequest) returns (ListOrdersResponse);
+  rpc UpdateOrderStatus(UpdateOrderStatusRequest) returns (OrderResponse);
+}
+
+// Inventory Item Messages
+message InventoryItem {
+  int32 id = 1;
+  int32 product_id = 2;
+  int32 quantity = 3;
+  int32 reserved_quantity = 4;
+  string location = 5;
+  string created_at = 6;
+  string updated_at = 7;
+}
+
+message CreateInventoryItemRequest {
+  int32 product_id = 1;
+  int32 quantity = 2;
+  string location = 3;
+}
+
+message GetInventoryItemRequest {
+  int32 id = 1;
+}
+
+message UpdateInventoryItemRequest {
+  int32 id = 1;
+  int32 quantity = 2;
+  string location = 3;
+}
+
+message ListInventoryItemsRequest {
+  int32 page = 1;
+  int32 limit = 2;
+}
+
+message InventoryItemResponse {
+  InventoryItem item = 1;
+  string message = 2;
+}
+
+message ListInventoryItemsResponse {
+  repeated InventoryItem items = 1;
+  int32 total = 2;
+  int32 page = 3;
+  int32 limit = 4;
+}
+
+message CheckStockRequest {
+  int32 product_id = 1;
+  int32 required_quantity = 2;
+}
+
+message CheckStockResponse {
+  bool available = 1;
+  int32 available_quantity = 2;
+  string message = 3;
+}
+
+message ReserveStockRequest {
+  int32 product_id = 1;
+  int32 quantity = 2;
+  string order_id = 3;
+}
+
+message ReserveStockResponse {
+  bool success = 1;
+  string message = 2;
+  string reservation_id = 3;
+}
+
+message ReleaseStockRequest {
+  string reservation_id = 1;
+}
+
+message ReleaseStockResponse {
+  bool success = 1;
+  string message = 2;
+}
+
+// Order Messages
+message Order {
+  string id = 1;
+  int32 user_id = 2;
+  repeated OrderItem items = 3;
+  double total_amount = 4;
+  OrderStatus status = 5;
+  string created_at = 6;
+  string updated_at = 7;
+}
+
+message OrderItem {
+  int32 product_id = 1;
+  int32 quantity = 2;
+  double price = 3;
+}
+
+message CreateOrderRequest {
+  int32 user_id = 1;
+  repeated OrderItem items = 2;
+}
+
+message GetOrderRequest {
+  string id = 1;
+}
+
+message UpdateOrderStatusRequest {
+  string id = 1;
+  OrderStatus status = 2;
+}
+
+message OrderResponse {
+  Order order = 1;
+  string message = 2;
+}
+
+message ListOrdersRequest {
+  int32 user_id = 1;
+  int32 page = 2;
+  int32 limit = 3;
+}
+
+message ListOrdersResponse {
+  repeated Order orders = 1;
+  int32 total = 2;
+  int32 page = 3;
+  int32 limit = 4;
+}
+
+enum OrderStatus {
+  PENDING = 0;
+  CONFIRMED = 1;
+  PROCESSING = 2;
+  SHIPPED = 3;
+  DELIVERED = 4;
+  CANCELLED = 5;
+}
