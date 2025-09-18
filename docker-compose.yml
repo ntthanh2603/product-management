@@ -1,0 +1,79 @@
+version: '3.8'
+
+services:
+  # User Service (NestJS)
+  user-service:
+    build:
+      context: ./user-service
+      dockerfile: Dockerfile
+    container_name: user-service
+    ports:
+      - "50051:50051"
+    environment:
+      - DATABASE_URL=sqlite:./users.db
+      - GRPC_PORT=50051
+      - PRODUCT_SERVICE_URL=product-service:50052
+    volumes:
+      - user_data:/app/users.db
+    networks:
+      - microservices-network
+    healthcheck:
+      test: ["CMD", "node", "-e", "require('net').createConnection(50051, 'localhost').on('connect', () => process.exit(0)).on('error', () => process.exit(1))"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Product Service (Python)
+  product-service:
+    build:
+      context: ./product-service
+      dockerfile: Dockerfile
+    container_name: product-service
+    ports:
+      - "50052:50052"
+    environment:
+      - DATABASE_URL=sqlite:///./products.db
+      - GRPC_PORT=50052
+      - USER_SERVICE_URL=user-service:50051
+    volumes:
+      - product_data:/app/products.db
+    networks:
+      - microservices-network
+    healthcheck:
+      test: ["CMD", "python", "-c", "import socket; s=socket.socket(); s.connect(('localhost', 50052)); s.close()"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # API Gateway (Go Fiber)
+  api-gateway:
+    build:
+      context: ./api-gateway
+      dockerfile: Dockerfile
+    container_name: api-gateway
+    ports:
+      - "8000:8000"
+    environment:
+      - USER_SERVICE_URL=user-service:50051
+      - PRODUCT_SERVICE_URL=product-service:50052
+      - PORT=8000
+    networks:
+      - microservices-network
+    depends_on:
+      user-service:
+        condition: service_healthy
+      product-service:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+networks:
+  microservices-network:
+    driver: bridge
+
+volumes:
+  user_data:
+  product_data:
