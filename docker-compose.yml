@@ -1,6 +1,39 @@
 version: '3.8'
 
 services:
+  # Zookeeper for Kafka
+  zookeeper:
+    image: confluentinc/cp-zookeeper:latest
+    container_name: zookeeper
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+    ports:
+      - "2181:2181"
+    networks:
+      - microservices-network
+
+  # Kafka
+  kafka:
+    image: confluentinc/cp-kafka:latest
+    container_name: kafka
+    depends_on:
+      - zookeeper
+    ports:
+      - "9092:9092"
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9092
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: true
+    networks:
+      - microservices-network
+    healthcheck:
+      test: ["CMD", "kafka-topics", "--bootstrap-server", "localhost:9092", "--list"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
   # User Service (NestJS)
   user-service:
     build:
@@ -45,6 +78,31 @@ services:
       timeout: 10s
       retries: 3
 
+  # Inventory Service (Python)
+  inventory-service:
+    build:
+      context: ./inventory-service
+      dockerfile: Dockerfile
+    container_name: inventory-service
+    ports:
+      - "50053:50053"
+    environment:
+      - DATABASE_URL=sqlite:///./inventory.db
+      - GRPC_PORT=50053
+      - KAFKA_BOOTSTRAP_SERVERS=kafka:9092
+    volumes:
+      - inventory_data:/app/inventory.db
+    networks:
+      - microservices-network
+    depends_on:
+      kafka:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "python", "-c", "import socket; s=socket.socket(); s.connect(('localhost', 50053)); s.close()"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
   # API Gateway (Go Fiber)
   api-gateway:
     build:
@@ -64,6 +122,8 @@ services:
         condition: service_healthy
       product-service:
         condition: service_healthy
+      inventory-service:
+        condition: service_healthy
     healthcheck:
       test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:8000/health"]
       interval: 30s
@@ -77,3 +137,4 @@ networks:
 volumes:
   user_data:
   product_data:
+  inventory_data:

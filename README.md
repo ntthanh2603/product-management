@@ -4,25 +4,37 @@ A complete microservice architecture featuring:
 
 - **User Service**: NestJS with TypeScript and gRPC (following nest-grpc-base structure)
 - **Product Service**: Python with gRPC and SQLAlchemy
-- **API Gateway**: Go Fiber REST API that communicates with both services via gRPC
+- **Inventory Service**: Python with gRPC, SQLAlchemy, and Kafka integration
+- **API Gateway**: Go Fiber REST API that communicates with all services via gRPC
+- **Kafka**: Event streaming platform for real-time order and inventory events
 
 ## 🏗️ Architecture
 
 ```
-┌─────────────────┐    gRPC     ┌─────────────────┐
-│  User Service   │◄────────────┤ Product Service │
-│   (NestJS)      │             │    (Python)     │
-│   Port: 50051   │             │   Port: 50052   │
-└─────────────────┘             └─────────────────┘
-         ▲                               ▲
-         │ gRPC                          │ gRPC
-         │                               │
-┌─────────────────────────────────────────────────┐
-│              API Gateway                        │
-│             (Go Fiber)                          │
-│            Port: 8000                           │
-│         HTTP REST Endpoints                     │
-└─────────────────────────────────────────────────┘
+┌─────────────────┐  ┌─────────────────┐  ┌─────────────────┐
+│  User Service   │  │ Product Service │  │Inventory Service│
+│   (NestJS)      │  │    (Python)     │  │    (Python)     │
+│   Port: 50051   │  │   Port: 50052   │  │   Port: 50053   │
+└─────────────────┘  └─────────────────┘  └─────────────────┘
+         ▲                     ▲                     ▲
+         │ gRPC                │ gRPC                │ gRPC
+         │                     │                     │
+┌─────────────────────────────────────────────────────────────┐
+│                 API Gateway (Go Fiber)                     │
+│                    Port: 8000                              │
+│               HTTP REST Endpoints                          │
+└─────────────────────────────────────────────────────────────┘
+                             │
+                             ▼
+            ┌─────────────────────────────────┐
+            │        Kafka Cluster            │
+            │    (Zookeeper + Kafka)          │
+            │   Ports: 2181, 9092            │
+            │                                 │
+            │ Topics:                         │
+            │ • order-events                  │
+            │ • inventory-events              │
+            └─────────────────────────────────┘
 ```
 
 ## 📋 Services Overview
@@ -52,6 +64,20 @@ A complete microservice architecture featuring:
   - Clean Python architecture
 - **📖 Documentation**: [product-service/README.md](product-service/README.md)
 
+### Inventory Service (Python)
+
+- **Framework**: Python with gRPC, SQLAlchemy, and Kafka
+- **Port**: 50053 (gRPC)
+- **Database**: SQLite (`inventory.db`)
+- **Features**:
+  - Inventory item management with multi-location support
+  - Stock reservation and release system
+  - Order management with lifecycle tracking
+  - Real-time Kafka event streaming
+  - Automatic stock validation
+  - Reservation expiration handling
+- **📖 Documentation**: [INVENTORY_SYSTEM.md](INVENTORY_SYSTEM.md)
+
 ### API Gateway (Go Fiber)
 
 - **Framework**: Go Fiber (high-performance web framework)
@@ -63,7 +89,21 @@ A complete microservice architecture featuring:
   - Built-in middleware (CORS, logging, recovery)
   - Fast JSON serialization
   - Error handling and validation
+  - Inventory and order management endpoints
 - **📖 Documentation**: [api-gateway/README.md](api-gateway/README.md)
+
+### Kafka Event Streaming
+
+- **Platform**: Apache Kafka with Zookeeper
+- **Ports**: 2181 (Zookeeper), 9092 (Kafka)
+- **Topics**:
+  - `order-events`: Order lifecycle events
+  - `inventory-events`: Stock and reservation events
+- **Features**:
+  - Real-time event streaming
+  - Distributed messaging
+  - Event-driven architecture
+  - Microservice decoupling
 
 ## 🚀 Quick Start
 

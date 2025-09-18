@@ -1,0 +1,313 @@
+version: '3'
+
+vars:
+  PYTHON: python
+  SERVICE_NAME: inventory-service
+  GRPC_PORT: 50053
+  PROTO_DIR: ../protos
+  PROTO_FILE: inventory.proto
+
+tasks:
+  # Development tasks
+  install:
+    desc: Install Python dependencies
+    cmds:
+      - pip install -r requirements.txt
+      - pip install grpcio-tools  # For proto generation
+
+  proto:
+    desc: Generate gRPC Python files from proto definitions
+    cmds:
+      - |
+        {{.PYTHON}} -m grpc_tools.protoc \
+          --proto_path={{.PROTO_DIR}} \
+          --python_out=. \
+          --grpc_python_out=. \
+          {{.PROTO_DIR}}/{{.PROTO_FILE}}
+    sources:
+      - "{{.PROTO_DIR}}/{{.PROTO_FILE}}"
+    generates:
+      - inventory_pb2.py
+      - inventory_pb2_grpc.py
+
+  dev:
+    desc: Run inventory service in development mode
+    deps: [proto]
+    cmds:
+      - echo "Starting {{.SERVICE_NAME}} on port {{.GRPC_PORT}}..."
+      - "{{.PYTHON}} inventory_service.py"
+
+  # Database tasks
+  db-init:
+    desc: Initialize database (create tables)
+    cmds:
+      - "{{.PYTHON}} -c 'from models import Base, engine; Base.metadata.create_all(bind=engine); print(\"Database initialized\")'"
+
+  db-reset:
+    desc: Reset database (drop and recreate)
+    cmds:
+      - rm -f inventory.db
+      - task: db-init
+
+  db-shell:
+    desc: Open SQLite shell for inventory database
+    cmds:
+      - sqlite3 inventory.db
+
+  # Kafka tasks
+  kafka-topics:
+    desc: List Kafka topics
+    cmds:
+      - docker exec kafka kafka-topics --bootstrap-server localhost:9092 --list
+
+  kafka-create-topics:
+    desc: Create Kafka topics for inventory service
+    cmds:
+      - |
+        docker exec kafka kafka-topics --bootstrap-server localhost:9092 \
+          --create --topic order-events --partitions 3 --replication-factor 1 \
+          --if-not-exists
+      - |
+        docker exec kafka kafka-topics --bootstrap-server localhost:9092 \
+          --create --topic inventory-events --partitions 3 --replication-factor 1 \
+          --if-not-exists
+
+  kafka-consume-orders:
+    desc: Consume order events from Kafka
+    cmds:
+      - |
+        docker exec -it kafka kafka-console-consumer \
+          --bootstrap-server localhost:9092 \
+          --topic order-events \
+          --from-beginning \
+          --property print.key=true \
+          --property key.separator=":"
+
+  kafka-consume-inventory:
+    desc: Consume inventory events from Kafka
+    cmds:
+      - |
+        docker exec -it kafka kafka-console-consumer \
+          --bootstrap-server localhost:9092 \
+          --topic inventory-events \
+          --from-beginning \
+          --property print.key=true \
+          --property key.separator=":"
+
+  # Testing tasks
+  test:
+    desc: Run service tests
+    cmds:
+      - echo "Running inventory service tests..."
+      - "{{.PYTHON}} -m pytest tests/ -v"
+
+  test-grpc:
+    desc: Test gRPC service directly
+    cmds:
+      - "{{.PYTHON}} test_grpc_client.py"
+
+  # Utility tasks
+  lint:
+    desc: Lint Python code
+    cmds:
+      - flake8 . --max-line-length=120 --exclude=*_pb2.py,*_pb2_grpc.py
+      - black . --check --exclude=".*_pb2\.py|.*_pb2_grpc\.py"
+
+  format:
+    desc: Format Python code
+    cmds:
+      - black . --exclude=".*_pb2\.py|.*_pb2_grpc\.py"
+      - isort . --skip-glob="*_pb2.py" --skip-glob="*_pb2_grpc.py"
+
+  clean:
+    desc: Clean generated files and cache
+    cmds:
+      - rm -rf __pycache__/
+      - rm -rf .pytest_cache/
+      - rm -f inventory.db
+      - rm -f *.log
+
+  # Health and status tasks
+  health:
+    desc: Check service health
+    cmds:
+      - |
+        {{.PYTHON}} -c "
+        import socket
+        try:
+            s = socket.socket()
+            s.connect(('localhost', {{.GRPC_PORT}}))
+            s.close()
+            print('✅ Inventory service is running on port {{.GRPC_PORT}}')
+        except:
+            print('❌ Inventory service is not running')
+        "
+
+  status:
+    desc: Show service status and database info
+    cmds:
+      - echo "=== Inventory Service Status ==="
+      - task: health
+      - echo ""
+      - echo "=== Database Status ==="
+      - |
+        if [ -f inventory.db ]; then
+          echo "✅ Database file exists"
+          echo "Database size: $(du -h inventory.db | cut -f1)"
+          {{.PYTHON}} -c "
+          from models import SessionLocal, InventoryItem, Order
+          db = SessionLocal()
+          try:
+              inventory_count = db.query(InventoryItem).count()
+              order_count = db.query(Order).count()
+              print(f'Inventory items: {inventory_count}')
+              print(f'Orders: {order_count}')
+          finally:
+              db.close()
+          "
+        else
+          echo "❌ Database file not found"
+        fi
+      - echo ""
+      - echo "=== Kafka Status ==="
+      - task: kafka-topics
+
+  # Docker tasks
+  docker-build:
+    desc: Build Docker image
+    cmds:
+      - docker build -t {{.SERVICE_NAME}} .
+
+  docker-run:
+    desc: Run service in Docker container
+    deps: [docker-build]
+    cmds:
+      - |
+        docker run --rm \
+          --name {{.SERVICE_NAME}} \
+          -p {{.GRPC_PORT}}:{{.GRPC_PORT}} \
+          -e DATABASE_URL=sqlite:///./inventory.db \
+          -e GRPC_PORT={{.GRPC_PORT}} \
+          -e KAFKA_BOOTSTRAP_SERVERS=host.docker.internal:9092 \
+          {{.SERVICE_NAME}}
+
+  docker-stop:
+    desc: Stop Docker container
+    cmds:
+      - docker stop {{.SERVICE_NAME}} || true
+
+  # Data management tasks
+  seed-data:
+    desc: Seed database with sample data
+    cmds:
+      - |
+        {{.PYTHON}} -c "
+        from models import SessionLocal, InventoryItem
+        from datetime import datetime
+        
+        db = SessionLocal()
+        try:
+            # Sample inventory data
+            items = [
+                {'product_id': 1, 'quantity': 100, 'location': 'WAREHOUSE_A'},
+                {'product_id': 2, 'quantity': 150, 'location': 'WAREHOUSE_A'},
+                {'product_id': 3, 'quantity': 75, 'location': 'WAREHOUSE_B'},
+                {'product_id': 4, 'quantity': 200, 'location': 'WAREHOUSE_C'},
+                {'product_id': 5, 'quantity': 50, 'location': 'WAREHOUSE_A'},
+            ]
+            
+            for item_data in items:
+                existing = db.query(InventoryItem).filter_by(
+                    product_id=item_data['product_id'],
+                    location=item_data['location']
+                ).first()
+                
+                if not existing:
+                    item = InventoryItem(**item_data)
+                    db.add(item)
+            
+            db.commit()
+            print('✅ Sample data seeded successfully')
+        except Exception as e:
+            print(f'❌ Error seeding data: {e}')
+            db.rollback()
+        finally:
+            db.close()
+        "
+
+  query-inventory:
+    desc: Query current inventory status
+    cmds:
+      - |
+        {{.PYTHON}} -c "
+        from models import SessionLocal, InventoryItem
+        
+        db = SessionLocal()
+        try:
+            items = db.query(InventoryItem).all()
+            print('Current Inventory:')
+            print('ID | Product | Quantity | Reserved | Available | Location')
+            print('-' * 60)
+            for item in items:
+                available = item.quantity - item.reserved_quantity
+                print(f'{item.id:2} | {item.product_id:7} | {item.quantity:8} | {item.reserved_quantity:8} | {available:9} | {item.location}')
+        finally:
+            db.close()
+        "
+
+  query-orders:
+    desc: Query current orders
+    cmds:
+      - |
+        {{.PYTHON}} -c "
+        from models import SessionLocal, Order, OrderItem
+        
+        db = SessionLocal()
+        try:
+            orders = db.query(Order).all()
+            print('Current Orders:')
+            print('Order ID | User | Status | Total | Items | Created')
+            print('-' * 70)
+            for order in orders:
+                item_count = len(order.items)
+                created = order.created_at.strftime('%Y-%m-%d %H:%M')
+                print(f'{order.id[:8]}... | {order.user_id:4} | {order.status:10} | ${order.total_amount:6.2f} | {item_count:5} | {created}')
+        finally:
+            db.close()
+        "
+
+  # Monitoring tasks
+  logs:
+    desc: Show service logs (if running in Docker)
+    cmds:
+      - docker logs {{.SERVICE_NAME}} --tail=50 --follow
+
+  metrics:
+    desc: Show basic service metrics
+    cmds:
+      - |
+        {{.PYTHON}} -c "
+        import psutil
+        import os
+        
+        # Process info
+        pid = os.getpid()
+        process = psutil.Process(pid)
+        
+        print('=== Service Metrics ===')
+        print(f'CPU Usage: {process.cpu_percent()}%')
+        print(f'Memory Usage: {process.memory_info().rss / 1024 / 1024:.1f} MB')
+        print(f'Open Files: {len(process.open_files())}')
+        print(f'Connections: {len(process.connections())}')
+        "
+
+  # Help task
+  help:
+    desc: Show available tasks
+    cmds:
+      - task --list
+
+# Default task
+default:
+  cmds:
+    - task: help
