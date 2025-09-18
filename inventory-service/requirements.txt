@@ -1,0 +1,5 @@
+grpcio==1.59.0
+grpcio-tools==1.59.0
+sqlalchemy==2.0.21
+kafka-python==2.0.2
+python-dotenv==1.0.0
