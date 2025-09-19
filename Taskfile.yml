@@ -2,7 +2,9 @@ version: "3"
 vars:
   USER_SERVICE_DIR: user-service
   PRODUCT_SERVICE_DIR: product-service
+  INVENTORY_SERVICE_DIR: inventory-service
   API_GATEWAY_DIR: api-gateway
+
 tasks:
   default:
     desc: Show all available tasks
@@ -14,12 +16,14 @@ tasks:
       - task: install-user
       - task: install-product
       - task: install-gateway
+      - task: install-inventory
   dev:
     desc: Start all services in development mode
     deps:
       - dev-user
       - dev-product
       - dev-gateway
+      - dev-inventory
   install-user:
     desc: Install User Service dependencies
     dir: "{{.USER_SERVICE_DIR}}"
@@ -38,6 +42,12 @@ tasks:
     cmds:
       - go mod tidy
 
+  install-inventory:
+    desc: Install Inventory Service dependencies
+    dir: "{{.INVENTORY_SERVICE_DIR}}"
+    cmds:
+      - pip install -r requirements.txt
+
   dev-user:
     desc: Start User Service in development mode
     dir: "{{.USER_SERVICE_DIR}}"
@@ -55,3 +65,9 @@ tasks:
     dir: "{{.API_GATEWAY_DIR}}"
     cmds:
       - go run main.go
+
+  dev-inventory:
+    desc: Start Inventory Service in development mode
+    dir: "{{.INVENTORY_SERVICE_DIR}}"
+    cmds:
+      - python inventory_service.py

@@ -1,5 +1,62 @@
 basePath: /api
 definitions:
+  CheckStockRequest:
+    description: Request body for checking stock availability
+    properties:
+      product_id:
+        example: 1
+        type: integer
+      required_quantity:
+        example: 10
+        type: integer
+    required:
+    - product_id
+    - required_quantity
+    type: object
+  CheckStockResponse:
+    description: Stock availability response
+    properties:
+      available:
+        example: true
+        type: boolean
+      available_quantity:
+        example: 100
+        type: integer
+      message:
+        example: Stock is available
+        type: string
+    type: object
+  CreateInventoryItemRequest:
+    description: Request body for creating an inventory item
+    properties:
+      location:
+        example: Warehouse A
+        type: string
+      product_id:
+        example: 1
+        type: integer
+      quantity:
+        example: 100
+        type: integer
+    required:
+    - location
+    - product_id
+    - quantity
+    type: object
+  CreateOrderRequest:
+    description: Request body for creating an order
+    properties:
+      items:
+        items:
+          $ref: '#/definitions/OrderItem'
+        type: array
+      user_id:
+        example: 1
+        type: integer
+    required:
+    - items
+    - user_id
+    type: object
   CreateProductRequest:
     description: Request body for creating a product
     properties:
@@ -62,6 +119,119 @@ definitions:
         example: "2023-01-01T12:00:00Z"
         type: string
     type: object
+  InventoryItem:
+    description: Inventory item information
+    properties:
+      created_at:
+        example: "2023-01-01T12:00:00Z"
+        type: string
+      id:
+        example: 1
+        type: integer
+      location:
+        example: Warehouse A
+        type: string
+      product_id:
+        example: 1
+        type: integer
+      quantity:
+        example: 100
+        type: integer
+      updated_at:
+        example: "2023-01-01T12:00:00Z"
+        type: string
+    type: object
+  InventoryItemResponse:
+    description: Inventory item response
+    properties:
+      item:
+        $ref: '#/definitions/InventoryItem'
+      message:
+        example: Inventory item created successfully
+        type: string
+    type: object
+  InventoryItemsListResponse:
+    description: Inventory items list response
+    properties:
+      items:
+        items:
+          $ref: '#/definitions/InventoryItem'
+        type: array
+      limit:
+        example: 10
+        type: integer
+      page:
+        example: 1
+        type: integer
+      total:
+        example: 50
+        type: integer
+    type: object
+  Order:
+    description: Order information
+    properties:
+      created_at:
+        example: "2023-01-01T12:00:00Z"
+        type: string
+      id:
+        example: ord_123456
+        type: string
+      items:
+        items:
+          $ref: '#/definitions/OrderItem'
+        type: array
+      status:
+        example: PENDING
+        type: string
+      total_price:
+        example: 1999.98
+        type: number
+      updated_at:
+        example: "2023-01-01T12:00:00Z"
+        type: string
+      user_id:
+        example: 1
+        type: integer
+    type: object
+  OrderItem:
+    description: Order item information
+    properties:
+      price:
+        example: 999.99
+        type: number
+      product_id:
+        example: 1
+        type: integer
+      quantity:
+        example: 2
+        type: integer
+    type: object
+  OrderResponse:
+    description: Order response
+    properties:
+      message:
+        example: Order created successfully
+        type: string
+      order:
+        $ref: '#/definitions/Order'
+    type: object
+  OrdersListResponse:
+    description: Orders list response
+    properties:
+      limit:
+        example: 10
+        type: integer
+      orders:
+        items:
+          $ref: '#/definitions/Order'
+        type: array
+      page:
+        example: 1
+        type: integer
+      total:
+        example: 25
+        type: integer
+    type: object
   Product:
     description: Product information
     properties:
@@ -113,6 +283,55 @@ definitions:
         example: 50
         type: integer
     type: object
+  ReleaseStockRequest:
+    description: Request body for releasing stock
+    properties:
+      reservation_id:
+        example: res_123456
+        type: string
+    required:
+    - reservation_id
+    type: object
+  ReleaseStockResponse:
+    description: Stock release response
+    properties:
+      message:
+        example: Stock released successfully
+        type: string
+      success:
+        example: true
+        type: boolean
+    type: object
+  ReserveStockRequest:
+    description: Request body for reserving stock
+    properties:
+      order_id:
+        example: ord_123456
+        type: string
+      product_id:
+        example: 1
+        type: integer
+      quantity:
+        example: 10
+        type: integer
+    required:
+    - order_id
+    - product_id
+    - quantity
+    type: object
+  ReserveStockResponse:
+    description: Stock reservation response
+    properties:
+      message:
+        example: Stock reserved successfully
+        type: string
+      reservation_id:
+        example: res_123456
+        type: string
+      success:
+        example: true
+        type: boolean
+    type: object
   SuccessResponse:
     description: Success response
     properties:
@@ -122,6 +341,28 @@ definitions:
       success:
         example: true
         type: boolean
+    type: object
+  UpdateInventoryItemRequest:
+    description: Request body for updating an inventory item
+    properties:
+      location:
+        example: Warehouse A
+        type: string
+      quantity:
+        example: 100
+        type: integer
+    required:
+    - location
+    - quantity
+    type: object
+  UpdateOrderStatusRequest:
+    description: Request body for updating order status
+    properties:
+      status:
+        example: CONFIRMED
+        type: string
+    required:
+    - status
     type: object
   UpdateUserRequest:
     description: Request body for updating a user
@@ -228,6 +469,353 @@ paths:
       summary: Health check endpoint
       tags:
       - Health
+  /inventory:
+    get:
+      consumes:
+      - application/json
+      description: Get a paginated list of all inventory items
+      parameters:
+      - default: 1
+        description: Page number
+        in: query
+        name: page
+        type: integer
+      - default: 10
+        description: Items per page
+        in: query
+        name: limit
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/InventoryItemsListResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+      summary: List inventory items with pagination
+      tags:
+      - Inventory
+    post:
+      consumes:
+      - application/json
+      description: Create a new inventory item for a product
+      parameters:
+      - description: Inventory item data
+        in: body
+        name: item
+        required: true
+        schema:
+          $ref: '#/definitions/CreateInventoryItemRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/InventoryItemResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+      summary: Create a new inventory item
+      tags:
+      - Inventory
+  /inventory/{id}:
+    get:
+      consumes:
+      - application/json
+      description: Get an inventory item by its ID
+      parameters:
+      - description: Inventory Item ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/InventoryItemResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+      summary: Get inventory item by ID
+      tags:
+      - Inventory
+    put:
+      consumes:
+      - application/json
+      description: Update an inventory item's quantity and location
+      parameters:
+      - description: Inventory Item ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Inventory item update data
+        in: body
+        name: item
+        required: true
+        schema:
+          $ref: '#/definitions/UpdateInventoryItemRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/InventoryItemResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+      summary: Update inventory item
+      tags:
+      - Inventory
+  /inventory/check-stock:
+    post:
+      consumes:
+      - application/json
+      description: Check if sufficient stock is available for a product
+      parameters:
+      - description: Stock check data
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/CheckStockRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/CheckStockResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+      summary: Check stock availability
+      tags:
+      - Inventory
+  /inventory/release-stock:
+    post:
+      consumes:
+      - application/json
+      description: Release stock that was previously reserved
+      parameters:
+      - description: Stock release data
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/ReleaseStockRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/ReleaseStockResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+      summary: Release reserved stock
+      tags:
+      - Inventory
+  /inventory/reserve-stock:
+    post:
+      consumes:
+      - application/json
+      description: Reserve stock for a specific order
+      parameters:
+      - description: Stock reservation data
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/ReserveStockRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/ReserveStockResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+      summary: Reserve stock for an order
+      tags:
+      - Inventory
+  /orders:
+    get:
+      consumes:
+      - application/json
+      description: Get a paginated list of orders, optionally filtered by user
+      parameters:
+      - description: User ID filter
+        in: query
+        name: user_id
+        type: integer
+      - default: 1
+        description: Page number
+        in: query
+        name: page
+        type: integer
+      - default: 10
+        description: Items per page
+        in: query
+        name: limit
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/OrdersListResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+      summary: List orders with pagination
+      tags:
+      - Orders
+    post:
+      consumes:
+      - application/json
+      description: Create a new order with items
+      parameters:
+      - description: Order data
+        in: body
+        name: order
+        required: true
+        schema:
+          $ref: '#/definitions/CreateOrderRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/OrderResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+      summary: Create a new order
+      tags:
+      - Orders
+  /orders/{id}:
+    get:
+      consumes:
+      - application/json
+      description: Get an order by its ID
+      parameters:
+      - description: Order ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/OrderResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+      summary: Get order by ID
+      tags:
+      - Orders
+  /orders/{id}/status:
+    put:
+      consumes:
+      - application/json
+      description: Update the status of an order
+      parameters:
+      - description: Order ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Status update data
+        in: body
+        name: status
+        required: true
+        schema:
+          $ref: '#/definitions/UpdateOrderStatusRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/OrderResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+      summary: Update order status
+      tags:
+      - Orders
   /products:
     get:
       consumes:
